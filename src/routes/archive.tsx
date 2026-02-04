@@ -14,7 +14,7 @@ function ArchivePage() {
     return dateB - dateA;
   });
 
-  const handleUnarchive = async (id: string, type: string) => {
+  const handleUnarchive = async (id: string) => {
     await unarchiveTopic(id);
   };
 
@@ -100,7 +100,7 @@ function ArchivePage() {
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 {/* Restore button */}
                 <button
-                  onClick={() => handleUnarchive(topic.id, topic.type)}
+                  onClick={() => handleUnarchive(topic.id)}
                   className={cn(
                     "p-2 rounded-lg transition-all duration-200",
                     "text-green-400/70 hover:text-green-400 hover:bg-green-400/20"

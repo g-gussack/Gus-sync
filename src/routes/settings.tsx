@@ -3,7 +3,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
   Settings,
   Check,
-  X,
   Loader2,
   Eye,
   EyeOff,
