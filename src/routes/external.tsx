@@ -6,8 +6,8 @@ import TopicEditModal from "@/components/topic-edit-modal";
 import { useTopics } from "@/hooks/use-topics";
 import type { Topic, InternalTag, ExternalTag, ADOWorkItem } from "@/types/topic";
 
-function InternalPage() {
-  const { internalTopics, addTopic, toggleHot, markComplete, updateTopic, removeTopic, updateResults, isLoading } =
+function ExternalPage() {
+  const { externalTopics, addTopic, toggleHot, markComplete, updateTopic, removeTopic, updateResults, isLoading } =
     useTopics();
   const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
 
@@ -16,7 +16,7 @@ function InternalPage() {
     tags: (InternalTag | ExternalTag)[],
     adoWorkItem?: ADOWorkItem
   ) => {
-    await addTopic(description, "internal", tags, adoWorkItem);
+    await addTopic(description, "external", tags, adoWorkItem);
   };
 
   const handleEdit = (topic: Topic) => {
@@ -44,23 +44,23 @@ function InternalPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-white text-glass">
-          Internal Topics
+          External Topics
         </h1>
         <span className="text-sm text-white/60">
-          {internalTopics.length} item{internalTopics.length !== 1 ? "s" : ""}
+          {externalTopics.length} item{externalTopics.length !== 1 ? "s" : ""}
         </span>
       </div>
 
-      <TopicForm type="internal" onSubmit={handleAddTopic} />
+      <TopicForm type="external" onSubmit={handleAddTopic} />
 
       <TopicList
-        topics={internalTopics}
+        topics={externalTopics}
         onToggleHot={toggleHot}
         onComplete={markComplete}
         onEdit={handleEdit}
         onDelete={handleDelete}
         onUpdateResults={updateResults}
-        emptyMessage="No internal topics. Add one above to get started."
+        emptyMessage="No external topics. Add one above to get started."
       />
 
       {/* Edit Modal */}
@@ -75,6 +75,6 @@ function InternalPage() {
   );
 }
 
-export const Route = createFileRoute("/")({
-  component: InternalPage,
+export const Route = createFileRoute("/external")({
+  component: ExternalPage,
 });

@@ -6,29 +6,28 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { useTranslation } from "react-i18next";
 import ExternalLink from "./external-link";
 
+// Legacy navigation menu - kept for reference but not used in SyncTrack
+// The app now uses TabNavigation component instead
 export default function NavigationMenu() {
-  const { t } = useTranslation();
-
   return (
     <NavigationMenuBase className="text-muted-foreground px-2">
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link to="/">{t("titleHomePage")}</Link>
+            <Link to="/">Internal</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link to="/second">{t("titleSecondPage")}</Link>
+            <Link to="/external">External</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
             <ExternalLink href="https://docs.luanroger.dev/electron-shadcn">
-              {t("documentation")}
+              Documentation
             </ExternalLink>
           </NavigationMenuLink>
         </NavigationMenuItem>

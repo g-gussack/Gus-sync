@@ -16,9 +16,7 @@
     "bump-ui": "ts-node ./scripts/bump-ui.ts",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "test:unit": "vitest",
-    "test:e2e": "playwright test",
-    "test:all": "vitest run && playwright test"
+    "test:unit": "vitest"
   },
   "author": "ROG <luan.roger.2003@gmail.com>",
   "license": "MIT",
@@ -36,7 +34,6 @@
     "@electron/fuses": "~1.8.0",
     "@eslint/compat": "^2.0.0",
     "@eslint/js": "^9.39.0",
-    "@playwright/test": "^1.57.0",
     "@tanstack/router-plugin": "^1.151.6",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
@@ -50,7 +47,6 @@
     "babel-plugin-react-compiler": "1.0.0",
     "electron": "^40.0.0",
     "electron-devtools-installer": "^4.0.0",
-    "electron-playwright-helpers": "^2.1.0",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
