@@ -16,6 +16,8 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    minWidth: 400,
+    minHeight: 300,
     webPreferences: {
       devTools: inDevelopment,
       contextIsolation: true,
@@ -24,9 +26,10 @@ function createWindow() {
 
       preload: preload,
     },
-    titleBarStyle: process.platform === "darwin" ? "hiddenInset" : "hidden",
-    trafficLightPosition:
-      process.platform === "darwin" ? { x: 5, y: 5 } : undefined,
+    titleBarStyle: "hidden",
+    titleBarOverlay: false,
+    // Dark background color matching the CSS theme
+    backgroundColor: "#1a1a2e",
   });
   ipcContext.setMainWindow(mainWindow);
 

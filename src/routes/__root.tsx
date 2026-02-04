@@ -1,5 +1,6 @@
 import BaseLayout from "@/layouts/base-layout";
 import { Outlet, createRootRoute } from "@tanstack/react-router";
+import { useTopics } from "@/hooks/use-topics";
 /* import { TanStackRouterDevtools } from '@tanstack/react-router-devtools' */
 
 /*
@@ -7,8 +8,14 @@ import { Outlet, createRootRoute } from "@tanstack/react-router";
  */
 
 function Root() {
+  const { internalTopics, externalTopics, hotTopics } = useTopics();
+
   return (
-    <BaseLayout>
+    <BaseLayout
+      internalCount={internalTopics.length}
+      externalCount={externalTopics.length}
+      hotCount={hotTopics.length}
+    >
       <Outlet />
       {/* Uncomment the following line to enable the router devtools */}
       {/* <TanStackRouterDevtools /> */}

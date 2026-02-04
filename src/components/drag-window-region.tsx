@@ -1,69 +1,39 @@
-import { getPlatform } from "@/actions/app";
 import { closeWindow, maximizeWindow, minimizeWindow } from "@/actions/window";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode } from "react";
 
 interface DragWindowRegionProps {
   title?: ReactNode;
 }
 
 export default function DragWindowRegion({ title }: DragWindowRegionProps) {
-  const [platform, setPlatform] = useState<string | null>(null);
-
-  useEffect(() => {
-    let active = true;
-
-    getPlatform()
-      .then((value) => {
-        if (!active) {
-          return;
-        }
-
-        setPlatform(value);
-      })
-      .catch((error) => {
-        console.error("Failed to detect platform", error);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  const isMacOS = platform === "darwin";
-
   return (
     <div className="flex w-full items-stretch justify-between">
       <div className="draglayer w-full">
-        {title && !isMacOS && (
-          <div className="flex flex-1 p-2 text-xs whitespace-nowrap text-gray-400 select-none">
+        {title && (
+          <div className="flex flex-1 p-2 text-xs whitespace-nowrap text-white/60 select-none">
             {title}
           </div>
         )}
-        {isMacOS && (
-          <div className="flex flex-1 p-2">
-            {/* Maintain the same height but do not display content */}
-          </div>
-        )}
       </div>
-      {!isMacOS && <WindowButtons />}
+      <WindowButtons />
     </div>
   );
 }
 
 function WindowButtons() {
   return (
-    <div className="flex">
+    <div className="flex items-center pr-1 text-white/20">
       <button
         title="Minimize"
         type="button"
-        className="p-2 hover:bg-slate-300"
+        className="w-8 h-8 flex items-center justify-center hover:bg-white/5 hover:text-white/30"
         onClick={minimizeWindow}
       >
         <svg
           aria-hidden="true"
           role="img"
-          width="12"
-          height="12"
+          width="10"
+          height="10"
           viewBox="0 0 12 12"
         >
           <rect fill="currentColor" width="10" height="1" x="1" y="6"></rect>
@@ -72,14 +42,14 @@ function WindowButtons() {
       <button
         title="Maximize"
         type="button"
-        className="p-2 hover:bg-slate-300"
+        className="w-8 h-8 flex items-center justify-center hover:bg-white/5 hover:text-white/30"
         onClick={maximizeWindow}
       >
         <svg
           aria-hidden="true"
           role="img"
-          width="12"
-          height="12"
+          width="10"
+          height="10"
           viewBox="0 0 12 12"
         >
           <rect
@@ -95,14 +65,14 @@ function WindowButtons() {
       <button
         type="button"
         title="Close"
-        className="p-2 hover:bg-red-300"
+        className="w-8 h-8 flex items-center justify-center hover:bg-white/5 hover:text-white/30"
         onClick={closeWindow}
       >
         <svg
           aria-hidden="true"
           role="img"
-          width="12"
-          height="12"
+          width="10"
+          height="10"
           viewBox="0 0 12 12"
         >
           <polygon

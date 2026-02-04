@@ -1,8 +1,8 @@
 {
-  "name": "electron-shadcn",
-  "productName": "electron-shadcn Template",
-  "version": "1.3.1",
-  "description": "Electron Forge with shadcn-ui (Vite + Typescript)",
+  "name": "synctrack",
+  "productName": "SyncTrack",
+  "version": "1.0.0",
+  "description": "Track topics requiring follow-up meetings for Scrum Masters and Product Owners",
   "main": ".vite/build/main.js",
   "private": true,
   "scripts": {
@@ -18,13 +18,16 @@
     "test:watch": "vitest watch",
     "test:unit": "vitest",
     "test:e2e": "playwright test",
-    "test:all": "vitest run && playwright test"
+    "test:all": "vitest run && playwright test",
+    "build:macos": "electron-forge make --platform=darwin",
+    "build:macos:open": "./scripts/build-macos.sh"
   },
   "author": "ROG <luan.roger.2003@gmail.com>",
   "license": "MIT",
   "devDependencies": {
     "@electron-forge/cli": "^7.10.2",
     "@electron-forge/maker-deb": "^7.10.2",
+    "@electron-forge/maker-dmg": "^7.11.1",
     "@electron-forge/maker-rpm": "^7.10.2",
     "@electron-forge/maker-squirrel": "^7.10.2",
     "@electron-forge/maker-zip": "^7.11.1",
@@ -81,6 +84,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "electron-squirrel-startup": "^1.0.1",
+    "electron-store": "^11.0.2",
     "i18next": "^25.7.4",
     "lucide-react": "^0.562.0",
     "radix-ui": "^1.4.3",

@@ -9,12 +9,30 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SecondRouteImport } from './routes/second'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as HotRouteImport } from './routes/hot'
+import { Route as ExternalRouteImport } from './routes/external'
+import { Route as ArchiveRouteImport } from './routes/archive'
 import { Route as IndexRouteImport } from './routes/index'
 
-const SecondRoute = SecondRouteImport.update({
-  id: '/second',
-  path: '/second',
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HotRoute = HotRouteImport.update({
+  id: '/hot',
+  path: '/hot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExternalRoute = ExternalRouteImport.update({
+  id: '/external',
+  path: '/external',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArchiveRoute = ArchiveRouteImport.update({
+  id: '/archive',
+  path: '/archive',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -25,37 +43,70 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/second': typeof SecondRoute
+  '/archive': typeof ArchiveRoute
+  '/external': typeof ExternalRoute
+  '/hot': typeof HotRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/second': typeof SecondRoute
+  '/archive': typeof ArchiveRoute
+  '/external': typeof ExternalRoute
+  '/hot': typeof HotRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/second': typeof SecondRoute
+  '/archive': typeof ArchiveRoute
+  '/external': typeof ExternalRoute
+  '/hot': typeof HotRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/second'
+  fullPaths: '/' | '/archive' | '/external' | '/hot' | '/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/second'
-  id: '__root__' | '/' | '/second'
+  to: '/' | '/archive' | '/external' | '/hot' | '/settings'
+  id: '__root__' | '/' | '/archive' | '/external' | '/hot' | '/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  SecondRoute: typeof SecondRoute
+  ArchiveRoute: typeof ArchiveRoute
+  ExternalRoute: typeof ExternalRoute
+  HotRoute: typeof HotRoute
+  SettingsRoute: typeof SettingsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/second': {
-      id: '/second'
-      path: '/second'
-      fullPath: '/second'
-      preLoaderRoute: typeof SecondRouteImport
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hot': {
+      id: '/hot'
+      path: '/hot'
+      fullPath: '/hot'
+      preLoaderRoute: typeof HotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/external': {
+      id: '/external'
+      path: '/external'
+      fullPath: '/external'
+      preLoaderRoute: typeof ExternalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/archive': {
+      id: '/archive'
+      path: '/archive'
+      fullPath: '/archive'
+      preLoaderRoute: typeof ArchiveRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -70,7 +121,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  SecondRoute: SecondRoute,
+  ArchiveRoute: ArchiveRoute,
+  ExternalRoute: ExternalRoute,
+  HotRoute: HotRoute,
+  SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

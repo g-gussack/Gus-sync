@@ -1,23 +1,14 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import TopicForm from "@/components/topic-form";
+import { Flame } from "lucide-react";
 import TopicList from "@/components/topic-list";
 import TopicEditModal from "@/components/topic-edit-modal";
 import { useTopics } from "@/hooks/use-topics";
-import type { Topic, InternalTag, ExternalTag, ADOWorkItem } from "@/types/topic";
+import type { Topic } from "@/types/topic";
 
-function InternalPage() {
-  const { internalTopics, addTopic, toggleHot, markComplete, updateTopic, removeTopic, updateResults, isLoading } =
-    useTopics();
+function HotPage() {
+  const { hotTopics, toggleHot, markComplete, updateTopic, removeTopic, updateResults, isLoading } = useTopics();
   const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
-
-  const handleAddTopic = async (
-    description: string,
-    tags: (InternalTag | ExternalTag)[],
-    adoWorkItem?: ADOWorkItem
-  ) => {
-    await addTopic(description, "internal", tags, adoWorkItem);
-  };
 
   const handleEdit = (topic: Topic) => {
     setEditingTopic(topic);
@@ -43,24 +34,31 @@ function InternalPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-white text-glass">
-          Internal Topics
-        </h1>
+        <div className="flex items-center gap-2">
+          <Flame className="w-6 h-6 text-orange-400" />
+          <h1 className="text-xl font-semibold text-white text-glass">
+            Hot Topics
+          </h1>
+        </div>
         <span className="text-sm text-white/60">
-          {internalTopics.length} item{internalTopics.length !== 1 ? "s" : ""}
+          {hotTopics.length} item{hotTopics.length !== 1 ? "s" : ""}
         </span>
       </div>
 
-      <TopicForm type="internal" onSubmit={handleAddTopic} />
+      <p className="text-sm text-white/50">
+        High priority items from both Internal and External tabs. Click the fire
+        icon on any topic to add or remove it from this list.
+      </p>
 
       <TopicList
-        topics={internalTopics}
+        topics={hotTopics}
         onToggleHot={toggleHot}
         onComplete={markComplete}
         onEdit={handleEdit}
         onDelete={handleDelete}
         onUpdateResults={updateResults}
-        emptyMessage="No internal topics. Add one above to get started."
+        showPriority={false}
+        emptyMessage="No hot topics. Mark items as hot from the Internal or External tabs."
       />
 
       {/* Edit Modal */}
@@ -75,6 +73,6 @@ function InternalPage() {
   );
 }
 
-export const Route = createFileRoute("/")({
-  component: InternalPage,
+export const Route = createFileRoute("/hot")({
+  component: HotPage,
 });
