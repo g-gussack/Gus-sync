@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Flame, Check, ExternalLink, Pencil, Trash2, FileText, ChevronDown, ChevronUp } from "lucide-react";
+import { Flame, Check, ExternalLink, Pencil, Trash2, FileText, ChevronDown, ChevronUp, AlertTriangle } from "lucide-react";
 import { cn } from "@/utils/tailwind";
 import type { Topic } from "@/types/topic";
+import { getStalenessLevel } from "@/types/topic";
 import PriorityBadge from "./priority-badge";
 import { TagBadges } from "./tag-selector";
 import { openExternalLink } from "@/actions/shell";
@@ -31,6 +32,15 @@ export default function TopicCard({
 
   const hasResults = topic.results && topic.results.trim().length > 0;
   const canComplete = hasResults;
+  const stalenessLevel = getStalenessLevel(topic);
+
+  // Calculate hours since last update for display
+  const getHoursSinceUpdate = () => {
+    const lastUpdate = topic.resultsUpdatedAt || topic.createdAt;
+    const lastUpdateDate = new Date(lastUpdate);
+    const now = new Date();
+    return Math.floor((now.getTime() - lastUpdateDate.getTime()) / (1000 * 60 * 60));
+  };
 
   const handleAdoLinkClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -66,7 +76,26 @@ export default function TopicCard({
   };
 
   return (
-    <div className="glass-card p-4 space-y-3 group">
+    <div className={cn(
+      "glass-card p-4 space-y-3 group relative",
+      stalenessLevel === "warning" && "ring-2 ring-yellow-500/50 bg-yellow-500/10",
+      stalenessLevel === "critical" && "ring-2 ring-red-500/50 bg-red-500/10"
+    )}>
+      {/* Staleness indicator */}
+      {stalenessLevel !== "none" && (
+        <div className={cn(
+          "absolute top-2 right-2 flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium",
+          stalenessLevel === "warning" && "bg-yellow-500/20 text-yellow-300",
+          stalenessLevel === "critical" && "bg-red-500/20 text-red-300"
+        )}>
+          <AlertTriangle className="w-3 h-3" />
+          <span>
+            {stalenessLevel === "warning" 
+              ? `${getHoursSinceUpdate()}h without update` 
+              : `${getHoursSinceUpdate()}h stale`}
+          </span>
+        </div>
+      )}
       <div className="flex items-start gap-4">
         {/* Priority Badge */}
         {showPriority && <PriorityBadge priority={topic.priority} />}

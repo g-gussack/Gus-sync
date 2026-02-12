@@ -15,32 +15,42 @@ import { useAdoConfig } from "@/hooks/use-ado";
 
 interface TopicFormProps {
   type: TopicType;
+  existingTopicCount: number; // Number of existing topics of this type (for priority options)
   onSubmit: (
     description: string,
     tags: (InternalTag | ExternalTag)[],
+    priority: number,
     adoWorkItem?: ADOWorkItem
   ) => void;
   onCancel?: () => void;
 }
 
-export default function TopicForm({ type, onSubmit, onCancel }: TopicFormProps) {
+export default function TopicForm({ type, existingTopicCount, onSubmit, onCancel }: TopicFormProps) {
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState<(InternalTag | ExternalTag)[]>([
     type === "internal" ? INTERNAL_TAGS[0] : EXTERNAL_TAGS[0]
   ]);
+  const [priority, setPriority] = useState<number>(existingTopicCount + 1);
   const [adoWorkItem, setAdoWorkItem] = useState<ADOWorkItem | undefined>();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAdoSearch, setShowAdoSearch] = useState(false);
 
   const { config: adoConfig, isConfigured } = useAdoConfig();
 
+  // Generate priority options (1 to existingTopicCount + 1)
+  const priorityOptions = Array.from(
+    { length: existingTopicCount + 1 },
+    (_, i) => i + 1
+  );
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!description.trim() || tags.length === 0) return;
 
-    onSubmit(description.trim(), tags, adoWorkItem);
+    onSubmit(description.trim(), tags, priority, adoWorkItem);
     setDescription("");
     setTags([type === "internal" ? INTERNAL_TAGS[0] : EXTERNAL_TAGS[0]]);
+    setPriority(existingTopicCount + 2); // Next priority after this one is added
     setAdoWorkItem(undefined);
     setIsExpanded(false);
   };
@@ -48,6 +58,7 @@ export default function TopicForm({ type, onSubmit, onCancel }: TopicFormProps) 
   const handleCancel = () => {
     setDescription("");
     setTags([type === "internal" ? INTERNAL_TAGS[0] : EXTERNAL_TAGS[0]]);
+    setPriority(existingTopicCount + 1);
     setAdoWorkItem(undefined);
     setIsExpanded(false);
     setShowAdoSearch(false);
@@ -100,6 +111,30 @@ export default function TopicForm({ type, onSubmit, onCancel }: TopicFormProps) 
           {type === "internal" ? "Teams" : "Categories"} (select multiple)
         </label>
         <TagSelector type={type} value={tags} onChange={setTags} />
+      </div>
+
+      {/* Priority selector */}
+      <div>
+        <label className="block text-xs text-white/60 mb-2">
+          Priority (1 = highest)
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {priorityOptions.map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => setPriority(p)}
+              className={cn(
+                "w-8 h-8 rounded-lg text-sm font-medium transition-all duration-200",
+                priority === p
+                  ? "bg-white/30 text-white"
+                  : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
+              )}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ADO Link */}

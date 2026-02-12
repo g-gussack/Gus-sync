@@ -14,9 +14,10 @@ function InternalPage() {
   const handleAddTopic = async (
     description: string,
     tags: (InternalTag | ExternalTag)[],
+    priority: number,
     adoWorkItem?: ADOWorkItem
   ) => {
-    await addTopic(description, "internal", tags, adoWorkItem);
+    await addTopic(description, "internal", tags, priority, adoWorkItem);
   };
 
   const handleEdit = (topic: Topic) => {
@@ -51,7 +52,7 @@ function InternalPage() {
         </span>
       </div>
 
-      <TopicForm type="internal" onSubmit={handleAddTopic} />
+      <TopicForm type="internal" existingTopicCount={internalTopics.length} onSubmit={handleAddTopic} />
 
       <TopicList
         topics={internalTopics}
@@ -67,6 +68,7 @@ function InternalPage() {
       {editingTopic && (
         <TopicEditModal
           topic={editingTopic}
+          maxPriority={internalTopics.length}
           onSave={handleSaveEdit}
           onCancel={() => setEditingTopic(null)}
         />

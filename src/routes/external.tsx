@@ -14,9 +14,10 @@ function ExternalPage() {
   const handleAddTopic = async (
     description: string,
     tags: (InternalTag | ExternalTag)[],
+    priority: number,
     adoWorkItem?: ADOWorkItem
   ) => {
-    await addTopic(description, "external", tags, adoWorkItem);
+    await addTopic(description, "external", tags, priority, adoWorkItem);
   };
 
   const handleEdit = (topic: Topic) => {
@@ -51,7 +52,7 @@ function ExternalPage() {
         </span>
       </div>
 
-      <TopicForm type="external" onSubmit={handleAddTopic} />
+      <TopicForm type="external" existingTopicCount={externalTopics.length} onSubmit={handleAddTopic} />
 
       <TopicList
         topics={externalTopics}
@@ -67,6 +68,7 @@ function ExternalPage() {
       {editingTopic && (
         <TopicEditModal
           topic={editingTopic}
+          maxPriority={externalTopics.length}
           onSave={handleSaveEdit}
           onCancel={() => setEditingTopic(null)}
         />

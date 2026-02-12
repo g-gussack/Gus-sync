@@ -9,21 +9,30 @@ import { useAdoConfig } from "@/hooks/use-ado";
 
 interface TopicEditModalProps {
   topic: Topic;
+  maxPriority: number; // Maximum priority number for this topic type
   onSave: (topic: Topic) => void;
   onCancel: () => void;
 }
 
 export default function TopicEditModal({
   topic,
+  maxPriority,
   onSave,
   onCancel,
 }: TopicEditModalProps) {
   const [description, setDescription] = useState(topic.description);
   const [tags, setTags] = useState<(InternalTag | ExternalTag)[]>(topic.tags);
+  const [priority, setPriority] = useState(topic.priority);
   const [adoWorkItem, setAdoWorkItem] = useState<ADOWorkItem | undefined>(topic.adoWorkItem);
   const [showAdoSearch, setShowAdoSearch] = useState(false);
 
   const { config: adoConfig, isConfigured } = useAdoConfig();
+
+  // Generate priority options (1 to maxPriority)
+  const priorityOptions = Array.from(
+    { length: maxPriority },
+    (_, i) => i + 1
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +42,7 @@ export default function TopicEditModal({
       ...topic,
       description: description.trim(),
       tags,
+      priority,
       adoWorkItem,
     });
   };
@@ -90,6 +100,30 @@ export default function TopicEditModal({
               {topic.type === "internal" ? "Teams" : "Categories"} (select multiple)
             </label>
             <TagSelector type={topic.type} value={tags} onChange={setTags} />
+          </div>
+
+          {/* Priority selector */}
+          <div>
+            <label className="block text-sm text-white/70 mb-1.5">
+              Priority (1 = highest)
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {priorityOptions.map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setPriority(p)}
+                  className={cn(
+                    "w-8 h-8 rounded-lg text-sm font-medium transition-all duration-200",
+                    priority === p
+                      ? "bg-white/30 text-white"
+                      : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
+                  )}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* ADO Work Item Link */}
