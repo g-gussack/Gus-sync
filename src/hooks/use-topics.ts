@@ -58,19 +58,29 @@ export function useTopics() {
       description: string,
       type: TopicType,
       tags: (InternalTag | ExternalTag)[],
+      priority: number,
       adoWorkItem?: ADOWorkItem
     ) => {
       try {
-        // Calculate next priority for this type
+        // Get existing topics of same type to adjust priorities
         const sameTypeTopics = topics.filter(
           (t) => t.type === type && !t.isCompleted
         );
-        const nextPriority = sameTypeTopics.length + 1;
+
+        // Shift priorities of topics that are >= the new priority
+        const updatedTopics = sameTypeTopics
+          .filter((t) => t.priority >= priority)
+          .map((t) => ({ ...t, priority: t.priority + 1 }));
+
+        // Save the shifted topics
+        for (const t of updatedTopics) {
+          await saveTopic(t);
+        }
 
         const newTopic: Topic = {
           id: generateId(),
           description,
-          priority: nextPriority,
+          priority,
           type,
           tags,
           adoWorkItem,
@@ -80,7 +90,16 @@ export function useTopics() {
         };
 
         const saved = await saveTopic(newTopic);
-        setTopics((prev) => [...prev, saved]);
+        
+        // Update local state with all changes
+        setTopics((prev) => {
+          const updated = prev.map((t) => {
+            const shifted = updatedTopics.find((u) => u.id === t.id);
+            return shifted || t;
+          });
+          return [...updated, saved];
+        });
+        
         return saved;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to add topic");
@@ -173,16 +192,67 @@ export function useTopics() {
   // Update a topic (for editing)
   const updateTopic = useCallback(async (updatedTopic: Topic) => {
     try {
-      const saved = await saveTopic(updatedTopic);
-      setTopics((prev) =>
-        prev.map((t) => (t.id === saved.id ? saved : t))
-      );
-      return saved;
+      const originalTopic = topics.find((t) => t.id === updatedTopic.id);
+      if (!originalTopic) {
+        throw new Error("Topic not found");
+      }
+
+      const oldPriority = originalTopic.priority;
+      const newPriority = updatedTopic.priority;
+
+      // If priority changed, we need to shift other topics
+      if (oldPriority !== newPriority) {
+        const sameTypeTopics = topics.filter(
+          (t) => t.type === updatedTopic.type && !t.isCompleted && t.id !== updatedTopic.id
+        );
+
+        let topicsToUpdate: Topic[] = [];
+
+        if (newPriority < oldPriority) {
+          // Moving up (lower number = higher priority)
+          // Shift topics between newPriority and oldPriority-1 down by 1
+          topicsToUpdate = sameTypeTopics
+            .filter((t) => t.priority >= newPriority && t.priority < oldPriority)
+            .map((t) => ({ ...t, priority: t.priority + 1 }));
+        } else {
+          // Moving down (higher number = lower priority)
+          // Shift topics between oldPriority+1 and newPriority up by 1
+          topicsToUpdate = sameTypeTopics
+            .filter((t) => t.priority > oldPriority && t.priority <= newPriority)
+            .map((t) => ({ ...t, priority: t.priority - 1 }));
+        }
+
+        // Save shifted topics
+        for (const t of topicsToUpdate) {
+          await saveTopic(t);
+        }
+
+        // Save the updated topic
+        const saved = await saveTopic(updatedTopic);
+
+        // Update local state with all changes
+        setTopics((prev) =>
+          prev.map((t) => {
+            if (t.id === saved.id) return saved;
+            const shifted = topicsToUpdate.find((u) => u.id === t.id);
+            return shifted || t;
+          })
+        );
+
+        return saved;
+      } else {
+        // No priority change, just save normally
+        const saved = await saveTopic(updatedTopic);
+        setTopics((prev) =>
+          prev.map((t) => (t.id === saved.id ? saved : t))
+        );
+        return saved;
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update topic");
       throw err;
     }
-  }, []);
+  }, [topics]);
 
   // Update topic results/notes
   const updateResults = useCallback(async (id: string, results: string) => {
@@ -193,6 +263,7 @@ export function useTopics() {
       const updatedTopic: Topic = {
         ...topic,
         results,
+        resultsUpdatedAt: new Date().toISOString(),
       };
 
       const saved = await saveTopic(updatedTopic);
