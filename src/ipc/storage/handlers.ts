@@ -50,7 +50,12 @@ try {
 // Topic handlers
 export const getTopics = os.handler(() => {
   const topics = store.get("topics", {});
-  return Object.values(topics);
+  // Migrate existing topics to include new fields with defaults
+  return Object.values(topics).map((topic) => ({
+    ...topic,
+    notes: topic.notes || [],
+    lastActivityAt: topic.lastActivityAt || topic.createdAt,
+  }));
 });
 
 export const saveTopic = os.input(saveTopicInputSchema).handler(({ input }) => {

@@ -7,7 +7,7 @@ import { useTopics } from "@/hooks/use-topics";
 import type { Topic, InternalTag, ExternalTag, ADOWorkItem } from "@/types/topic";
 
 function ExternalPage() {
-  const { externalTopics, addTopic, toggleHot, markComplete, updateTopic, removeTopic, updateResults, isLoading } =
+  const { externalTopics, addTopic, toggleHot, markComplete, updateTopic, removeTopic, updateResults, addNote, isLoading } =
     useTopics();
   const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
 
@@ -61,6 +61,7 @@ function ExternalPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onUpdateResults={updateResults}
+        onAddNote={addNote}
         emptyMessage="No external topics. Add one above to get started."
       />
 

@@ -10,6 +10,13 @@ export interface ADOWorkItem {
   title: string;
 }
 
+// Individual timestamped note entry
+export interface Note {
+  id: string;
+  content: string;
+  createdAt: string; // ISO date string
+}
+
 export interface Topic {
   id: string;
   description: string;
@@ -17,8 +24,9 @@ export interface Topic {
   type: TopicType;
   tags: (InternalTag | ExternalTag)[]; // Multiple tags supported
   adoWorkItem?: ADOWorkItem;
-  results?: string; // Notes/results - required before marking complete
-  resultsUpdatedAt?: string; // ISO date string - tracks when results were last updated
+  notes?: Note[]; // Array of timestamped notes for tracking discussion evolution
+  results?: string; // Final outcome - required before marking complete
+  lastActivityAt?: string; // ISO date string - tracks last note/result update for staleness
   isHot: boolean;
   isCompleted: boolean;
   completedAt?: string; // ISO date string for serialization
@@ -36,8 +44,8 @@ export function getStalenessLevel(topic: Topic): StalenessLevel {
   // Completed topics don't show staleness
   if (topic.isCompleted) return "none";
   
-  // Use resultsUpdatedAt if available, otherwise fall back to createdAt
-  const lastUpdate = topic.resultsUpdatedAt || topic.createdAt;
+  // Use lastActivityAt if available, otherwise fall back to createdAt
+  const lastUpdate = topic.lastActivityAt || topic.createdAt;
   const lastUpdateDate = new Date(lastUpdate);
   const now = new Date();
   const hoursSinceUpdate = (now.getTime() - lastUpdateDate.getTime()) / (1000 * 60 * 60);
@@ -45,6 +53,19 @@ export function getStalenessLevel(topic: Topic): StalenessLevel {
   if (hoursSinceUpdate >= STALE_CRITICAL_HOURS) return "critical";
   if (hoursSinceUpdate >= STALE_WARNING_HOURS) return "warning";
   return "none";
+}
+
+// Helper to format date for display
+export function formatTimestamp(isoString: string): string {
+  const date = new Date(isoString);
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
 }
 
 export interface ADOConfig {

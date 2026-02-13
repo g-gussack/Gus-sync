@@ -9,6 +9,7 @@ interface TopicListProps {
   onEdit?: (topic: Topic) => void;
   onDelete?: (id: string) => void;
   onUpdateResults?: (id: string, results: string) => void;
+  onAddNote?: (id: string, content: string) => void;
   showPriority?: boolean;
   emptyMessage?: string;
   className?: string;
@@ -21,6 +22,7 @@ export default function TopicList({
   onEdit,
   onDelete,
   onUpdateResults,
+  onAddNote,
   showPriority = true,
   emptyMessage = "No topics yet",
   className,
@@ -52,6 +54,7 @@ export default function TopicList({
           onEdit={onEdit}
           onDelete={onDelete}
           onUpdateResults={onUpdateResults}
+          onAddNote={onAddNote}
           showPriority={showPriority}
         />
       ))}

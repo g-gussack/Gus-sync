@@ -7,7 +7,7 @@ import { useTopics } from "@/hooks/use-topics";
 import type { Topic, InternalTag, ExternalTag, ADOWorkItem } from "@/types/topic";
 
 function InternalPage() {
-  const { internalTopics, addTopic, toggleHot, markComplete, updateTopic, removeTopic, updateResults, isLoading } =
+  const { internalTopics, addTopic, toggleHot, markComplete, updateTopic, removeTopic, updateResults, addNote, isLoading } =
     useTopics();
   const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
 
@@ -61,6 +61,7 @@ function InternalPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onUpdateResults={updateResults}
+        onAddNote={addNote}
         emptyMessage="No internal topics. Add one above to get started."
       />
 

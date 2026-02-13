@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Flame, Check, ExternalLink, Pencil, Trash2, FileText, ChevronDown, ChevronUp, AlertTriangle } from "lucide-react";
+import { Flame, Check, ExternalLink, Pencil, Trash2, FileText, ChevronDown, ChevronUp, AlertTriangle, MessageSquare, Plus, Clock } from "lucide-react";
 import { cn } from "@/utils/tailwind";
 import type { Topic } from "@/types/topic";
-import { getStalenessLevel } from "@/types/topic";
+import { getStalenessLevel, formatTimestamp } from "@/types/topic";
 import PriorityBadge from "./priority-badge";
 import { TagBadges } from "./tag-selector";
 import { openExternalLink } from "@/actions/shell";
@@ -14,6 +14,7 @@ interface TopicCardProps {
   onEdit?: (topic: Topic) => void;
   onDelete?: (id: string) => void;
   onUpdateResults?: (id: string, results: string) => void;
+  onAddNote?: (id: string, content: string) => void;
   showPriority?: boolean;
 }
 
@@ -24,19 +25,25 @@ export default function TopicCard({
   onEdit,
   onDelete,
   onUpdateResults,
+  onAddNote,
   showPriority = true,
 }: TopicCardProps) {
   const [isResultsExpanded, setIsResultsExpanded] = useState(false);
+  const [isNotesExpanded, setIsNotesExpanded] = useState(false);
   const [resultsText, setResultsText] = useState(topic.results || "");
+  const [newNoteText, setNewNoteText] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isAddingNote, setIsAddingNote] = useState(false);
 
   const hasResults = topic.results && topic.results.trim().length > 0;
   const canComplete = hasResults;
   const stalenessLevel = getStalenessLevel(topic);
+  const notes = topic.notes || [];
+  const hasNotes = notes.length > 0;
 
   // Calculate hours since last update for display
   const getHoursSinceUpdate = () => {
-    const lastUpdate = topic.resultsUpdatedAt || topic.createdAt;
+    const lastUpdate = topic.lastActivityAt || topic.createdAt;
     const lastUpdateDate = new Date(lastUpdate);
     const now = new Date();
     return Math.floor((now.getTime() - lastUpdateDate.getTime()) / (1000 * 60 * 60));
@@ -73,6 +80,22 @@ export default function TopicCard({
 
   const handleResultsBlur = () => {
     handleSaveResults();
+  };
+
+  const handleAddNote = async () => {
+    if (onAddNote && newNoteText.trim()) {
+      setIsAddingNote(true);
+      await onAddNote(topic.id, newNoteText.trim());
+      setNewNoteText("");
+      setIsAddingNote(false);
+    }
+  };
+
+  const handleNoteKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleAddNote();
+    }
   };
 
   return (
@@ -126,6 +149,12 @@ export default function TopicCard({
                 </span>
               </button>
             )}
+          </div>
+
+          {/* Created timestamp */}
+          <div className="flex items-center gap-1.5 mt-2 text-xs text-white/40">
+            <Clock className="w-3 h-3" />
+            <span>Created: {formatTimestamp(topic.createdAt)}</span>
           </div>
         </div>
 
@@ -189,6 +218,72 @@ export default function TopicCard({
         </div>
       </div>
 
+      {/* Notes Section Toggle */}
+      <button
+        onClick={() => setIsNotesExpanded(!isNotesExpanded)}
+        className={cn(
+          "flex items-center gap-2 text-xs transition-colors w-full",
+          hasNotes
+            ? "text-blue-400/70 hover:text-blue-400"
+            : "text-white/40 hover:text-white/60"
+        )}
+      >
+        <MessageSquare className="w-3.5 h-3.5" />
+        <span>{hasNotes ? `Notes (${notes.length})` : "Add notes"}</span>
+        {isNotesExpanded ? (
+          <ChevronUp className="w-3.5 h-3.5 ml-auto" />
+        ) : (
+          <ChevronDown className="w-3.5 h-3.5 ml-auto" />
+        )}
+      </button>
+
+      {/* Notes Section */}
+      {isNotesExpanded && (
+        <div className="space-y-3 pl-2 border-l-2 border-white/10">
+          {/* Existing notes */}
+          {notes.length > 0 && (
+            <div className="space-y-2">
+              {notes.map((note) => (
+                <div key={note.id} className="space-y-1">
+                  <p className="text-sm text-white/80">{note.content}</p>
+                  <span className="text-xs text-white/40">
+                    {formatTimestamp(note.createdAt)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Add new note */}
+          <div className="flex items-start gap-2">
+            <input
+              type="text"
+              value={newNoteText}
+              onChange={(e) => setNewNoteText(e.target.value)}
+              onKeyDown={handleNoteKeyDown}
+              placeholder="Add a note..."
+              className={cn(
+                "flex-1 bg-white/5 border border-white/10 rounded-lg",
+                "px-3 py-2 text-white/90 placeholder-white/30 text-sm",
+                "focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-white/20"
+              )}
+            />
+            <button
+              onClick={handleAddNote}
+              disabled={!newNoteText.trim() || isAddingNote}
+              className={cn(
+                "p-2 rounded-lg transition-colors",
+                "bg-blue-500/20 text-blue-400 hover:bg-blue-500/30",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
+              )}
+              title="Add note"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Results Section Toggle */}
       <button
         onClick={() => setIsResultsExpanded(!isResultsExpanded)}
@@ -215,7 +310,7 @@ export default function TopicCard({
             value={resultsText}
             onChange={(e) => setResultsText(e.target.value)}
             onBlur={handleResultsBlur}
-            placeholder="Enter results, notes, or outcomes..."
+            placeholder="Enter the final outcome..."
             className={cn(
               "w-full bg-white/5 border border-white/10 rounded-lg",
               "px-3 py-2 text-white/90 placeholder-white/30 text-sm",

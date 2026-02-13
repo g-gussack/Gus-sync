@@ -5,6 +5,7 @@ import type {
   InternalTag,
   ExternalTag,
   ADOWorkItem,
+  Note,
 } from "@/types/topic";
 import {
   getTopics,
@@ -77,6 +78,7 @@ export function useTopics() {
           await saveTopic(t);
         }
 
+        const now = new Date().toISOString();
         const newTopic: Topic = {
           id: generateId(),
           description,
@@ -84,9 +86,11 @@ export function useTopics() {
           type,
           tags,
           adoWorkItem,
+          notes: [],
           isHot: false,
           isCompleted: false,
-          createdAt: new Date().toISOString(),
+          createdAt: now,
+          lastActivityAt: now,
         };
 
         const saved = await saveTopic(newTopic);
@@ -254,16 +258,17 @@ export function useTopics() {
     }
   }, [topics]);
 
-  // Update topic results/notes
+  // Update topic results (final outcome)
   const updateResults = useCallback(async (id: string, results: string) => {
     try {
       const topic = topics.find((t) => t.id === id);
       if (!topic) return;
 
+      const now = new Date().toISOString();
       const updatedTopic: Topic = {
         ...topic,
         results,
-        resultsUpdatedAt: new Date().toISOString(),
+        lastActivityAt: now, // Reset staleness timer
       };
 
       const saved = await saveTopic(updatedTopic);
@@ -273,6 +278,36 @@ export function useTopics() {
       return saved;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update results");
+      throw err;
+    }
+  }, [topics]);
+
+  // Add a note to a topic
+  const addNote = useCallback(async (id: string, content: string) => {
+    try {
+      const topic = topics.find((t) => t.id === id);
+      if (!topic) return;
+
+      const now = new Date().toISOString();
+      const newNote: Note = {
+        id: generateId(),
+        content,
+        createdAt: now,
+      };
+
+      const updatedTopic: Topic = {
+        ...topic,
+        notes: [...(topic.notes || []), newNote],
+        lastActivityAt: now, // Reset staleness timer
+      };
+
+      const saved = await saveTopic(updatedTopic);
+      setTopics((prev) =>
+        prev.map((t) => (t.id === saved.id ? saved : t))
+      );
+      return saved;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to add note");
       throw err;
     }
   }, [topics]);
@@ -297,6 +332,7 @@ export function useTopics() {
     removeTopic,
     updateTopic,
     updateResults,
+    addNote,
     refresh: loadTopics,
   };
 }

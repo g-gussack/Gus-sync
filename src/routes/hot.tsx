@@ -7,7 +7,7 @@ import { useTopics } from "@/hooks/use-topics";
 import type { Topic } from "@/types/topic";
 
 function HotPage() {
-  const { hotTopics, internalTopics, externalTopics, toggleHot, markComplete, updateTopic, removeTopic, updateResults, isLoading } = useTopics();
+  const { hotTopics, internalTopics, externalTopics, toggleHot, markComplete, updateTopic, removeTopic, updateResults, addNote, isLoading } = useTopics();
   const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
 
   // Get max priority based on topic type
@@ -62,6 +62,7 @@ function HotPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onUpdateResults={updateResults}
+        onAddNote={addNote}
         showPriority={false}
         emptyMessage="No hot topics. Mark items as hot from the Internal or External tabs."
       />
